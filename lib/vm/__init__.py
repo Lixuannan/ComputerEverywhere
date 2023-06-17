@@ -4,6 +4,8 @@ import os
 import zipfile
 from multiprocessing import Process
 
+from ..common import *
+
 logging.basicConfig(format="%(levelname)s:\t  %(message)s", level=logging.DEBUG)
 _logger = logging.getLogger()
 
@@ -57,11 +59,24 @@ class VM:
         self.load(f"vms/{name}")
         self.reconfig(cpu=cpu, ram=ram)
 
-    def run(self):
+    def run(self) -> int:
         _logger.info(f"Starting up vm: {self.name}")
 
-        self.vm_process = Process(target=lambda: os.popen(self.config["run_command"].format(cpu, ram)))
+        port = -1
+
+        for i in range(8090, 65535):
+            if not check_port(i):
+                port = i
+                break
+
+        if port == -1:
+            _logger.error(f"No empty port exist, cannot start vm: {name}")
+            raise IOError(f"No empty port exist, cannot start vm: {name}")
+
+        self.vm_process = Process(target=lambda: os.popen(self.config["run_command"].format(cpu, ram, port)))
         self.vm_process.start()
+
+        return port
 
     def kill(self):
         _logger.warning(f"Killing vm: {name} by sending a SIGKILL signal")

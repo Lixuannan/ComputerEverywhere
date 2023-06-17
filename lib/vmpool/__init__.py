@@ -40,13 +40,16 @@ class VMPool:
     def submit(self, vm: VM):
         _logger.info(f"Submitting vm: {vm.get_name()}")
         self.add(vm)
-        self.run(vm.name)
 
-    def run(self, name: str):
+        try:
+            self.run(vm.name)
+        except IOError:
+            ...
+
+    def run(self, name: str) -> int:
         for i in self.pool:
             if i.get_name() == name:
-                i.run()
-                break
+                return i.run()
 
     def add(self, vm: VM):
         _logger.info(f"Adding vm: {vm.get_name()} to vm pool")
@@ -68,4 +71,3 @@ class VMPool:
         for i in self.pool:
             if i.get_name() == name:
                 i.reconfig(cpu=cpu, ram=ram)
-

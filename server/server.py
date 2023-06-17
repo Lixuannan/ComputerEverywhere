@@ -1,15 +1,11 @@
-import lib.vm
-import lib.vmpool
-
 import json
 import logging.config
-import os
-import zipfile
-from multiprocessing import Process
 
 import uvicorn
 from fastapi import *
-from psutil import cpu_count, virtual_memory
+
+import lib.vm
+import lib.vmpool
 
 app = FastAPI()
 
@@ -70,8 +66,25 @@ def new_vm(name: str, cpu: int, ram: float, template: str, api_key: str = ""):
 
 
 @app.get("/reconfig")
-def reconfig(name: str, cpu: int = 0, ram: float = 0):
+def reconfig(name: str, cpu: int = 0, ram: float = 0, api_key: str = ""):
+    if not api_key == config["api_key"]:
+        logger.error("Wrong api_key, please check and try again later")
+        return {"error": "Wrong api_key, please check and try again later"}
+
     pool.reconfig(name=name, cpu=cpu, ram=ram)
+
+
+@app.get("/run")
+def run(name: str, api_key: str = ""):
+    if not api_key == config["api_key"]:
+        logger.error("Wrong api_key, please check and try again later")
+        return {"error": "Wrong api_key, please check and try again later"}
+
+    try:
+        port = pool.run(name=name)
+        return {"port": port}
+    except IOError:
+        return {"error": f"No empty port exist, cannot start vm: {name}"}
 
 
 if __name__ == '__main__':
