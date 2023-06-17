@@ -64,3 +64,8 @@ class VMPool:
             if i.get_name() == name:
                 i.kill()
 
+    def reconfig(self, name: str, cpu: int = 0, ram: float = 0):
+        for i in self.pool:
+            if i.get_name() == name:
+                i.reconfig(cpu=cpu, ram=ram)
+

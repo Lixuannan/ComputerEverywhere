@@ -69,6 +69,11 @@ def new_vm(name: str, cpu: int, ram: float, template: str, api_key: str = ""):
     pool.add(vm)
 
 
+@app.get("/reconfig")
+def reconfig(name: str, cpu: int = 0, ram: float = 0):
+    pool.reconfig(name=name, cpu=cpu, ram=ram)
+
+
 if __name__ == '__main__':
     with open("config.json", "rt") as f:
         config = json.loads(f.read())
