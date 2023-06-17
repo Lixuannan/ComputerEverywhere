@@ -2,7 +2,7 @@ import json
 import logging.config
 
 import uvicorn
-from fastapi import *
+from fastapi import FastAPI
 
 import lib.vm
 import lib.vmpool
